@@ -8,10 +8,11 @@ This is a Proof of Concept showing Flex embedded within an application. Flex run
 Triggers from and to Twilio Flex are not limited to these use cases. You can communicate between platforms by adding new triggers to specific user actions on both applications, as well as support any channel.
 
 Sequence diagram for an inbound interaction, with screenpop and interaction activity postMessage triggers:
+
 ![Inbound Sequence Diagram](https://github.com/rbangueses/flex-inside-iframe/blob/main/Inbound%20flow.png?raw=true)
 
-Sequence diagram for the click to dial and interaction activity postMessage triggers::
-<how it works>
+Sequence diagram for the click to dial and interaction activity postMessage triggers:
+![Inbound Sequence Diagram](https://github.com/rbangueses/flex-inside-iframe/blob/main/click%20to%20dial%20flow.png?raw=true)
 
 Solution components:
 -   a web application (CRM or other) that can be modified to send and listen to postMessage.

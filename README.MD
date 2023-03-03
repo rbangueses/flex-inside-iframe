@@ -7,12 +7,11 @@ This is a Proof of Concept showing Flex embedded within an application. Flex run
 
 Demonstration for inbound screenpop and interaction activity history:
 
-https://github.com/rbangueses/flex-inside-iframe/blob/main/InboundScreenPop.mov
+https://user-images.githubusercontent.com/98812531/222751791-935c6e2b-e073-4a42-9fdc-75fd27803696.mov
 
 Demonstration for outbound click to dial and interaction activity history:
 
-https://github.com/rbangueses/flex-inside-iframe/blob/main/ClickToDial.mov
-
+https://user-images.githubusercontent.com/98812531/222751888-11e3d96f-e95c-44a6-878c-657d0f0ea73d.mov
 
 Triggers from and to Twilio Flex are not limited to these use cases. You can communicate between platforms by adding new triggers to specific user actions on both applications, as well as support any channel.
 

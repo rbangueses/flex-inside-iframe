@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<script src="index.js"></script>
+		<link rel="stylesheet" href="index.css">
+	</head>
+
+	<body>
+		<div id="CustomContentID">	
+			<h2>Dummy CRM or Ticketing System sending and receiving data from Flex.</h2>
+			
+			<!-- iframe with flex 
+			EDIT src="" to point towards your flex url-->
+			<div class="flex">
+				<iframe id="flex" 
+					src="http://localhost:3000/agent-desktop" 
+					scrolling="no"
+					style="height: 85vh; border: 0px none; width: 450px; margin-bottom: 0px; margin-left: 24px;"
+					allow="microphone;camera">
+			  	</iframe>
+			</div>
+			<!-- dummy crm or ticketing system panel -->
+			<div class="crmPanel" id="crmPanel" style="max-width:600px">
+				<div>
+					<h3>Sample use cases:</h3>
+					<ol>
+						<li>Accepting an inbound call will trigger a postMessage with the customer unique identifier, in this case the phone number.</li>
+						<li>Hanging up a call will trigger a postMessage passing call metadata.</li>
+						<li>You can simulate click to dial by filling in the text field below with your number and pressing call (E164 format).</li>
+					</ol>
+				</div>
+				<br />
+				<div id="pop">&nbsp;</div>
+				<br />
+
+				<table id="parameters">
+					<tr>
+					  <th>Parameter</th>
+					  <th>Value</th>
+					</tr>
+					<tr id='fromtr'>
+					  <td>From</td>
+					  <td id='from'>&nbsp;</td>
+					</tr>
+					<tr>
+					  <td>To</td>
+					  <td id='to'>&nbsp;</td>
+					</tr>
+					<tr>
+					  <td>Direction</td>
+					  <td id='direction'>&nbsp;</td>
+					</tr>
+					<tr>
+						<td>Duration</td>
+						<td id='duration'>&nbsp;</td>
+					  </tr>
+					<tr>
+					  <td>Agent</td>
+					  <td id='agent'>&nbsp;</td>
+					</tr>				
+				  </table>
+				  <br/>
+				  <label>Number to call:</label> <input type="text" id="numberToCall" style="margin-left:10px"> 
+				  <button class="button" id="callButton" style="margin-left:10px">Call</button> 
+			</div>				
+		</div>	
+	</body>
+</html>

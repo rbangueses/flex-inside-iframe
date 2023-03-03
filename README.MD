@@ -47,7 +47,7 @@ There are 2 folders in this repository that will be required:
 
 Additionally, we will need to securely embed flex as an iframe. Please make sure you follow the steps on this guide: https://www.twilio.com/docs/flex/admin-guide/setup/secure-iframe
 
-##Plugin setup
+## Plugin setup
 
 No changes need to be made to the plugin when testing this proof of concept. All you need to do is install the dependencies (npm install) and run it locally using the Twilio CLI.
 

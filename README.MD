@@ -27,9 +27,9 @@ Solution components:
 -   a web application (CRM or other) that can be modified to send and listen to postMessage.
 -   a Twilio Flex plugin, that will send and receive postMessage.
 
-You can find more information about the Flex Activity Framework [here](https://www.twilio.com/docs/flex/developer/ui/v1/actions).
+[Click to find out more on Flex Activity Framework](https://www.twilio.com/docs/flex/developer/ui/v1/actions).
 
-You can find more information about postMessage [here](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage).
+[Click to read about postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage).
 
 Interested in seeing how you can bring your own applications inside Flex? [Here's an example](https://www.twilio.com/blog/integrating-twilio-flex-and-hubspot-crm).
 

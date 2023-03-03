@@ -27,6 +27,8 @@ Solution components:
 -   a web application (CRM or other) that can be modified to send and listen to postMessage.
 -   a Twilio Flex plugin, that will send and receive postMessage.
 
+Note: you need to securely embed flex as an iframe. [The instructions can be found here](https://www.twilio.com/docs/flex/admin-guide/setup/secure-iframe).
+
 [Click to find out more on Flex Activity Framework](https://www.twilio.com/docs/flex/developer/ui/v1/actions).
 
 [Click to read about postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage).

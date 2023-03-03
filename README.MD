@@ -29,10 +29,10 @@ Solution components:
 
 You can find more information about the Flex Activity Framework [here](https://www.twilio.com/docs/flex/developer/ui/v1/actions).
 
-You can find more information about postMessage here.
+You can find more information about postMessage [here](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage).
 
-Interested in seeing how you can bring your own applications inside Flex? here's an example.
+Interested in seeing how you can bring your own applications inside Flex? [Here's an example](https://www.twilio.com/blog/integrating-twilio-flex-and-hubspot-crm).
 
-What if you just want to bring some data into the Flex application? here's another example.
+What if you just want to bring some data into the Flex application? [Here's another example](https://github.com/rbangueses/DataOnCanvasTab).
 
 

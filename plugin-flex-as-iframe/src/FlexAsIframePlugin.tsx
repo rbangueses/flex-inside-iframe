@@ -5,6 +5,7 @@ const PLUGIN_NAME = "FlexAsIframePlugin";
 const TASK_CHANNEL = {
   VOICE: "voice",
 };
+const CALL_STATUS = ["accepted", "canceled", "rejected", "rescinded", "timeout"];
 
 export default class FlexAsIframePlugin extends FlexPlugin {
   constructor() {
@@ -12,49 +13,76 @@ export default class FlexAsIframePlugin extends FlexPlugin {
   }
 
   async init(flex: typeof Flex, manager: Flex.Manager): Promise<void> {
+    const postMessage = (data: any) => {
+      parent.postMessage(JSON.stringify(data), "*");
+      console.log(">>> sending post message to crm: ", data);
+    };
+
     if (window.self !== window.top) {
       flex.AgentDesktopView.defaultProps.showPanel2 = false;
 
       const receiveMessage = (event: any) => {
-        let actionName = event.data.actionName;
-        let options;
+        let { action, payload } = event.data;
+        flex.Actions.invokeAction(action, payload);
+      };
 
-        switch (actionName) {
-          case "StartOutboundCall":
-            options = {
-              destination: event.data.attributes.to,
-            };
-            break;
-          default:
-            console.log("unknown event:", event.data.action);
-        }
-        //invoke action
-        flex.Actions.invokeAction(actionName, options);
+      const pluginsInitializedCallback = () => {
+        let data = {
+          eventName: "pluginsInitialized",
+          payload: {},
+        };
+        postMessage(data);
+      };
+
+      const afterSetActivityCallback = (payload: any) => {
+        let data = {
+          eventName: "afterSetActivity",
+          payload: {
+            visibility: payload.activityName,
+          },
+        };
+        postMessage(data);
+      };
+
+      const postActiveCallStatus = (status: string) => {
+        let data = {
+          eventName: `reservationCreated`,
+          payload: {
+            status,
+          },
+        };
+
+        postMessage(data);
+      };
+
+      const reservationCreatedCallback = (reservation: any) => {
+        // status "created" is used to indicate call is getting connected
+        postActiveCallStatus("created");
+
+        CALL_STATUS.forEach((status) => {
+          reservation.on(status, (payload: any) => {
+            postActiveCallStatus(status);
+          });
+        });
       };
 
       window.addEventListener("message", receiveMessage);
+
+      manager.events.addListener("pluginsInitialized", pluginsInitializedCallback);
+      flex.Actions.addListener("afterSetActivity", afterSetActivityCallback);
+      manager.workerClient && manager.workerClient.on("reservationCreated", reservationCreatedCallback);
     }
 
     flex.Actions.replaceAction("AcceptTask", (payload, original) => {
       return new Promise<void>((resolve, reject) => {
-        let data;
         if (payload.task.taskChannelUniqueName === TASK_CHANNEL.VOICE) {
-          switch (payload.task.attributes.direction) {
-            case "inbound":
-              data = {
-                attributes: payload.task.attributes,
-              };
-              break;
-            case "outbound":
-              data = {
-                attributes: payload.task.attributes,
-              };
-              break;
-            default:
-              console.log("Unhandled replaceAction::AcceptTask");
-          }
-
-          parent.postMessage(JSON.stringify(data), "*");
+          let data = {
+            eventName: "voiceCall",
+            payload: {
+              ...payload.task.attributes,
+            },
+          };
+          postMessage(data);
         }
         resolve();
       }).then(() => original(payload));
@@ -63,17 +91,16 @@ export default class FlexAsIframePlugin extends FlexPlugin {
     flex.Actions.replaceAction("HangupCall", (payload, original) => {
       return new Promise<void>((resolve, reject) => {
         //for outbound calls, to will be undefined
-        let { from, to, outbound_to, direction } = payload.task.attributes;
 
         let data = {
-          from,
-          to,
-          outbound_to,
-          direction,
-          duration: payload.task.age,
-          agent: manager.user.identity,
+          eventName: "HangupCall",
+          payload: {
+            ...payload.task.attributes,
+            duration: payload.task.age,
+            agent: manager.user.identity,
+          },
         };
-        parent.postMessage(JSON.stringify(data), "*");
+        postMessage(data);
         resolve();
       }).then(() => original(payload));
     });

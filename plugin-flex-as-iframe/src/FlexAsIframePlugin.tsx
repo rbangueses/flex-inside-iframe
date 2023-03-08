@@ -21,11 +21,6 @@ export default class FlexAsIframePlugin extends FlexPlugin {
     if (window.self !== window.top) {
       flex.AgentDesktopView.defaultProps.showPanel2 = false;
 
-      const receiveMessage = (event: any) => {
-        let { action, payload } = event.data;
-        flex.Actions.invokeAction(action, payload);
-      };
-
       const pluginsInitializedCallback = () => {
         let data = {
           eventName: "pluginsInitialized",
@@ -66,14 +61,18 @@ export default class FlexAsIframePlugin extends FlexPlugin {
         });
       };
 
-      window.addEventListener("message", receiveMessage);
+      const receiveMessage = (event: any) => {
+        let { action, payload } = event.data;
+        flex.Actions.invokeAction(action, payload);
+      };
 
+      window.addEventListener("message", receiveMessage);
       manager.events.addListener("pluginsInitialized", pluginsInitializedCallback);
       flex.Actions.addListener("afterSetActivity", afterSetActivityCallback);
       manager.workerClient && manager.workerClient.on("reservationCreated", reservationCreatedCallback);
     }
 
-    flex.Actions.replaceAction("AcceptTask", (payload, original) => {
+    const acceptTaskCallback = (payload: any, original: any) => {
       return new Promise<void>((resolve, reject) => {
         if (payload.task.taskChannelUniqueName === TASK_CHANNEL.VOICE) {
           let data = {
@@ -86,9 +85,9 @@ export default class FlexAsIframePlugin extends FlexPlugin {
         }
         resolve();
       }).then(() => original(payload));
-    });
+    };
 
-    flex.Actions.replaceAction("HangupCall", (payload, original) => {
+    const hangupCallCallback = (payload: any, original: any) => {
       return new Promise<void>((resolve, reject) => {
         //for outbound calls, to will be undefined
 
@@ -103,6 +102,9 @@ export default class FlexAsIframePlugin extends FlexPlugin {
         postMessage(data);
         resolve();
       }).then(() => original(payload));
-    });
+    };
+
+    flex.Actions.replaceAction("AcceptTask", acceptTaskCallback);
+    flex.Actions.replaceAction("HangupCall", hangupCallCallback);
   }
 }

@@ -13,7 +13,12 @@ export default class FlexAsIframePlugin extends FlexPlugin {
   }
 
   async init(flex: typeof Flex, manager: Flex.Manager): Promise<void> {
-    const postMessage = (data: any) => {
+    const sendMessageToCRM = (eventName: string, payload?: any) => {
+      let data = {
+        eventName,
+        payload,
+      };
+
       parent.postMessage(JSON.stringify(data), "*");
       console.log(">>> sending post message to crm: ", data);
     };
@@ -22,32 +27,23 @@ export default class FlexAsIframePlugin extends FlexPlugin {
       flex.AgentDesktopView.defaultProps.showPanel2 = false;
 
       const pluginsInitializedCallback = () => {
-        let data = {
-          eventName: "pluginsInitialized",
-          payload: {},
-        };
-        postMessage(data);
+        sendMessageToCRM("pluginsInitialized");
       };
 
       const afterSetActivityCallback = (payload: any) => {
         let data = {
-          eventName: "afterSetActivity",
-          payload: {
-            visibility: payload.activityName,
-          },
+          visibility: payload.activityName,
         };
-        postMessage(data);
+
+        sendMessageToCRM("afterSetActivity", data);
       };
 
       const postActiveCallStatus = (status: string) => {
         let data = {
-          eventName: `reservationCreated`,
-          payload: {
-            status,
-          },
+          status,
         };
 
-        postMessage(data);
+        sendMessageToCRM("reservationCreated", data);
       };
 
       const reservationCreatedCallback = (reservation: any) => {
@@ -61,14 +57,23 @@ export default class FlexAsIframePlugin extends FlexPlugin {
         });
       };
 
+      const afterToggleMuteCallback = () => {
+        sendMessageToCRM("toggleMute");
+      };
+
       const receiveMessage = (event: any) => {
-        let { action, payload } = event.data;
-        flex.Actions.invokeAction(action, payload);
+        let { name, payload = null } = event.data;
+
+        // invoke the action requested by crm
+        flex.Actions.invokeAction(name, payload);
       };
 
       window.addEventListener("message", receiveMessage);
-      manager.events.addListener("pluginsInitialized", pluginsInitializedCallback);
+
       flex.Actions.addListener("afterSetActivity", afterSetActivityCallback);
+      flex.Actions.addListener("afterToggleMute", afterToggleMuteCallback);
+
+      manager.events.addListener("pluginsInitialized", pluginsInitializedCallback);
       manager.workerClient && manager.workerClient.on("reservationCreated", reservationCreatedCallback);
     }
 
@@ -76,12 +81,10 @@ export default class FlexAsIframePlugin extends FlexPlugin {
       return new Promise<void>((resolve, reject) => {
         if (payload.task.taskChannelUniqueName === TASK_CHANNEL.VOICE) {
           let data = {
-            eventName: "voiceCall",
-            payload: {
-              ...payload.task.attributes,
-            },
+            ...payload.task.attributes,
           };
-          postMessage(data);
+
+          sendMessageToCRM("voice", data);
         }
         resolve();
       }).then(() => original(payload));
@@ -92,14 +95,13 @@ export default class FlexAsIframePlugin extends FlexPlugin {
         //for outbound calls, to will be undefined
 
         let data = {
-          eventName: "HangupCall",
-          payload: {
-            ...payload.task.attributes,
-            duration: payload.task.age,
-            agent: manager.user.identity,
-          },
+          ...payload.task.attributes,
+          duration: payload.task.age,
+          agent: manager.user.identity,
         };
-        postMessage(data);
+        debugger;
+        sendMessageToCRM("hangupCall", data);
+
         resolve();
       }).then(() => original(payload));
     };

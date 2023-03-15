@@ -38,7 +38,7 @@ export default class FlexAsIframePlugin extends FlexPlugin {
         sendMessageToCRM("afterSetActivity", data);
       };
 
-      const postActiveCallStatus = (status: string) => {
+      const sendActiveCallStatus = (status: string) => {
         let data = {
           status,
         };
@@ -48,11 +48,13 @@ export default class FlexAsIframePlugin extends FlexPlugin {
 
       const reservationCreatedCallback = (reservation: any) => {
         // status "created" is used to indicate call is getting connected
-        postActiveCallStatus("created");
+        console.log(">>> inside flex-ui reservationCreatedCallback: ", { reservation });
+        sendActiveCallStatus("created");
 
         CALL_STATUS.forEach((status) => {
           reservation.on(status, (payload: any) => {
-            postActiveCallStatus(status);
+            console.log(">>> inside flex-ui onStatusChange event: ", { status, payload });
+            sendActiveCallStatus(status);
           });
         });
       };
@@ -68,6 +70,19 @@ export default class FlexAsIframePlugin extends FlexPlugin {
         flex.Actions.invokeAction(name, payload);
       };
 
+      const voiceConnectedHandler = (connection: any) => {
+        connection.on("disconnect", (disConnection: any) => {
+          console.log(">>> inside flex-ui disconnect event: ", disConnection);
+
+          const { parameters } = disConnection;
+          const { CallSid } = parameters;
+          // do what you want here
+        });
+      };
+
+      const { voiceClient } = manager;
+      voiceClient.on("incoming", voiceConnectedHandler);
+
       window.addEventListener("message", receiveMessage);
 
       flex.Actions.addListener("afterSetActivity", afterSetActivityCallback);
@@ -78,6 +93,7 @@ export default class FlexAsIframePlugin extends FlexPlugin {
     }
 
     const acceptTaskCallback = (payload: any, original: any) => {
+      console.log(">>> inside flex-ui acceptTaskCallback: ", payload);
       return new Promise<void>((resolve, reject) => {
         if (payload.task.taskChannelUniqueName === TASK_CHANNEL.VOICE) {
           let data = {
@@ -93,13 +109,16 @@ export default class FlexAsIframePlugin extends FlexPlugin {
     const hangupCallCallback = (payload: any, original: any) => {
       return new Promise<void>((resolve, reject) => {
         //for outbound calls, to will be undefined
+        console.log(">>> inside flex-ui hangupCallCallback: ", payload);
+        console.log(">>> inside flex-ui manager object: ", manager);
 
         let data = {
+          taskSid: payload.task.taskSid,
+          workerSid: payload.task.workerSid,
           ...payload.task.attributes,
           duration: payload.task.age,
           agent: manager.user.identity,
         };
-        debugger;
         sendMessageToCRM("hangupCall", data);
 
         resolve();
